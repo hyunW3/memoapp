@@ -16,6 +16,9 @@ interface MemoDao{
     @Query("SELECT * FROM memoTable WHERE id =:target_id ")
     fun getByid(target_id:Int) : Memo?
 
+    @Query("SELECT taginfo FROM memoTable WHERE id =:target_id")
+    fun getTaginfo(target_id: Int) : String
+
     @Query("SELECT COUNT(id) FROM memoTable")
     fun count() : Int
 

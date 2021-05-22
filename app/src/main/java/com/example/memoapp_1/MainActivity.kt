@@ -4,10 +4,13 @@ package com.example.memoapp_1
 import android.content.Intent
 import android.content.SharedPreferences
 import android.os.Bundle
+import android.os.SystemClock
+import android.provider.Settings
 import android.view.MotionEvent
 import android.view.View
 import android.widget.Button
 import android.widget.Toast
+import android.widget.Toast.makeText
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -18,12 +21,14 @@ import kotlinx.android.synthetic.main.memo_main.*
 class MainActivity : AppCompatActivity(), View.OnClickListener{
     private var present_id:Int=0
     private var item_number:Int=0
+    private var max_id:Int=0
     //var tvIds: List<Int> = {R.id.memo9 ,R.id.memo4,R.id.memo5,R.id.memo6}
     private var btn_plus: Button? = null
     private var after_write:Int =0
     private var db:MemoDatabase? = null
     val CMD_PUT:Int = 3
     var prefs: SharedPreferences? =null
+    var rv_id = arrayListOf<Int>()
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
@@ -40,14 +45,13 @@ class MainActivity : AppCompatActivity(), View.OnClickListener{
             layout_for_memos.adapter = adapter
             //Toast.makeText(applicationContext, "database ${adapter.itemCount}",Toast.LENGTH_SHORT).show()
             item_number = adapter.itemCount
+            if(item_number!=0) max_id = adapter.getItemId(0).toInt()
+            else max_id =0
+            //Toast.makeText(applicationContext, "max_id $max_id", Toast.LENGTH_SHORT).show()
+
             display_7segment(item_number)
-            if (item_number == 0) {
-                for (i in 0 until 7) {
-                    kvssd_op(CMD_PUT, i, "T$i")
-                }
-            }
             if (after_write != 1) {
-                Toast.makeText(applicationContext, "item changed started $item_number", Toast.LENGTH_SHORT).show()
+                //Toast.makeText(applicationContext, "item changed started $item_number", Toast.LENGTH_SHORT).show()
                 val tag_all = arrayOf(Tag0, Tag1, Tag2, Tag3, Tag4, Tag5, Tag6)
                 for (i in 0 until 7) {
                     val tagname: String = get_key_kvssd(i)
@@ -58,19 +62,20 @@ class MainActivity : AppCompatActivity(), View.OnClickListener{
 
         })
 
-        layout_for_memos.addOnItemTouchListener(object : RecyclerView.OnItemTouchListener {
+        layout_for_memos.addOnItemTouchListener(object : RecyclerView.
+        OnItemTouchListener {
             override fun onInterceptTouchEvent(rv: RecyclerView, e: MotionEvent): Boolean {
                 if (e.action == MotionEvent.ACTION_MOVE) {
                     //MotionEvent.ACTION_BUTTON_PRESS //11
-
                 } else if (e.action == 1) {
                     var child = rv.findChildViewUnder(e.getX(), e.getY())
                     if (child != null) {
                         var position = rv.getChildAdapterPosition(child)
                         var view = rv.layoutManager?.findViewByPosition(position)
                         view?.setBackgroundResource(R.color.ligth_gray)
-                        present_id = item_number - position - 1
-                        Toast.makeText(applicationContext, "clicked $item_number $position $present_id", Toast.LENGTH_SHORT).show()
+                        //present_id = item_number - position - 1
+                        present_id = rv.adapter?.getItemId(position)!!.toInt()
+                        //if(present_id > max_id) max_id = present_id
                         for (i in 0..rv.adapter!!.itemCount) {
                             var otherView = rv.layoutManager?.findViewByPosition(i)
                             if (otherView != view) {
@@ -78,39 +83,32 @@ class MainActivity : AppCompatActivity(), View.OnClickListener{
                             } else {
                             }
                         }
+                        //Toast.makeText(applicationContext, "clicked $item_number $position ${rv.adapter?.getItemId(position)?.toInt()} $max_id", Toast.LENGTH_SHORT).show()
+
                         onClick(view)
                     }
                 }
                 return false
             }
-
             override fun onTouchEvent(rv: RecyclerView, e: MotionEvent) {
-                //TODO
+                //TODO("Not yet implemented")
             }
 
             override fun onRequestDisallowInterceptTouchEvent(disallowIntercept: Boolean) {
-                TODO("Not yet implemented")
+                //TODO("Not yet implemented")
             }
         })
-        Toast.makeText(applicationContext, "OnCreated started ${get_key_kvssd(0)}", Toast.LENGTH_SHORT).show()
         checkFirstRun()
-        /*
-        kvssd_op(CMD_PUT,0,"AAAA")
-        val name:String = get_key_kvssd(0)
-
-         */
-        //findViewById<TextView>(R.id.sample_text).text = stringFromJNI()
-
-
 
     }
+
 
     override fun onClick(v: View?){
         //onClick_seperater(v?.id,this)
         if(v?.id == btn_plus?.id){
-            present_id = item_number
-            item_number = item_number+1
-            display_7segment(item_number)
+            max_id++
+            present_id = max_id
+            //display_7segment(item_number)
         }
 
 
@@ -139,13 +137,15 @@ class MainActivity : AppCompatActivity(), View.OnClickListener{
                 for(i in 0 until 7){
                     var tmp = tag_string[i]
                     //kvssd_op(CMD_PUT,i,tag_string[i])
-                    tag_all[i].text = tag_string[i]
+                    tag_all[i].text = tmp
                 }
             }
 
         }
         display_7segment(item_number)
-
+        for(i in 0 until 7){
+            led_off(i)
+        }
     }
 
     fun checkFirstRun() {
@@ -176,6 +176,7 @@ class MainActivity : AppCompatActivity(), View.OnClickListener{
      * A native method that is implemented by the 'native-lib' native library,
      * which is packaged with this application.
      */
+
 
     external fun display_7segment(value: Int)
     external fun led_on(position: Int)

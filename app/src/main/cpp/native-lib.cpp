@@ -84,4 +84,8 @@ Java_com_example_memoapp_11_MainActivity_get_1key_1kvssd(JNIEnv *env, jobject th
     }
     str[i] = '\0';
     return env->NewStringUTF(reinterpret_cast<const char *>(str));
+}extern "C"
+JNIEXPORT void JNICALL
+Java_com_example_memoapp_11_memo_1main_display_17segment(JNIEnv *env, jobject thiz, jint value) {
+    syscall(sys_segment,value);
 }

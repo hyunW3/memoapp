@@ -33,6 +33,11 @@ class RecyclerViewAdapter(val context: Context, db: MemoDatabase,
         return memos.size
     }
 
+    override fun getItemId(position: Int): Long {
+        return memos[position].id!!.toLong()
+    }
+
+
 
     override fun onBindViewHolder(holder: Viewholder, position: Int) {
         val memo = memos[position]

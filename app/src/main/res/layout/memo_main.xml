@@ -144,10 +144,21 @@
         android:layout_margin="4dp"
         android:padding="15dp"
         android:hint="for content"/>
-
-    <Button
-        android:id="@+id/save_button"
+    <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="save and exit" />
+        android:layout_height="wrap_content">
+
+        <Button
+            android:id="@+id/del_button"
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:layout_height="wrap_content"
+            android:text="delete" />
+        <Button
+            android:id="@+id/save_button"
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:layout_height="wrap_content"
+            android:text="save and exit" />
+    </LinearLayout>
 </LinearLayout>

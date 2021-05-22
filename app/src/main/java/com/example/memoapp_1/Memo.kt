@@ -12,8 +12,8 @@ data class Memo(
         @ColumnInfo(name = "title")
         var title: String?,
         @ColumnInfo(name = "contents")
-        var contents: String?/*,
+        var contents: String?,
         @ColumnInfo(name = "taginfo")
-        var taginfo: Array<Int>
-        */
+        var taginfo: String
+
 )
