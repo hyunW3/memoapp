@@ -21,8 +21,22 @@ struct kvssd_env {
 
 extern "C"
 JNIEXPORT void JNICALL
-Java_com_example_memoapp_11_MainActivity_display_17segment(JNIEnv *env, jobject thiz,
-                                                           jint value) {
+Java_com_example_memoapp_11_memo_1main_led_1on(JNIEnv *env, jobject thiz, jint position) {
+    // TODO: implement led_on()
+    syscall(sys_led_on,position);
+}
+extern "C"
+JNIEXPORT void JNICALL
+Java_com_example_memoapp_11_memo_1main_led_1off(JNIEnv *env, jobject thiz, jint position) {
+    // TODO: implement led_off()
+    syscall(sys_led_off,position);
+}
+
+//main activity
+
+extern "C"
+JNIEXPORT void JNICALL
+Java_com_example_memoapp_11_MainActivity_display_17segment(JNIEnv *env, jobject thiz, jint value) {
     syscall(sys_segment,value);
 }
 //          LED
@@ -38,27 +52,14 @@ Java_com_example_memoapp_11_MainActivity_led_1on(JNIEnv *env, jobject thiz, jint
 }
 extern "C"
 JNIEXPORT void JNICALL
-Java_com_example_memoapp_11_memo_1main_led_1on(JNIEnv *env, jobject thiz, jint position) {
-    // TODO: implement led_on()
-    syscall(sys_led_on,position);
-}
-extern "C"
-JNIEXPORT void JNICALL
-Java_com_example_memoapp_11_memo_1main_led_1off(JNIEnv *env, jobject thiz, jint position) {
-    // TODO: implement led_off()
-    syscall(sys_led_off,position);
-}
-extern "C"
-JNIEXPORT void JNICALL
 Java_com_example_memoapp_11_MainActivity_kvssd_1op(JNIEnv *env, jobject thiz, jint op_num, jint key,
                                                    jstring value) {
-    int ret;
     const char *str;
     struct kvssd_env env1;
     memset(env1.key, 0x00, sizeof(uint32_t) * 4);
     memset(env1.value, 0x00, sizeof(uint32_t) * 1024);
 
-    env1.key[0] = key;
+    env1.key[0] = key+'0';
     if (op_num == CMD_PUT) {
         str = (env)->GetStringUTFChars(value, 0);
 
@@ -68,7 +69,8 @@ Java_com_example_memoapp_11_MainActivity_kvssd_1op(JNIEnv *env, jobject thiz, ji
     }
     syscall(sys_kvssd,op_num,&env1);
 
-}extern "C"
+}
+extern "C"
 JNIEXPORT jstring JNICALL
 Java_com_example_memoapp_11_MainActivity_get_1key_1kvssd(JNIEnv *env, jobject thiz, jint key) {
     int i;
@@ -77,15 +79,79 @@ Java_com_example_memoapp_11_MainActivity_get_1key_1kvssd(JNIEnv *env, jobject th
     memset(env1.key,0x00,sizeof(uint32_t)*4);
     memset(env1.value,0x00,sizeof(uint32_t)*1024);
 
-    env1.key[0] = key;
+    env1.key[0] = key+'0';
     syscall(sys_kvssd,CMD_GET,&env1);
     for(i=0; env1.value[1] !=0; i++){
         str[i] = env1.value[i];
     }
     str[i] = '\0';
     return env->NewStringUTF(reinterpret_cast<const char *>(str));
-}extern "C"
+}
+
+
+
+
+
+
+
+
+
+
+
+extern "C"
 JNIEXPORT void JNICALL
 Java_com_example_memoapp_11_memo_1main_display_17segment(JNIEnv *env, jobject thiz, jint value) {
     syscall(sys_segment,value);
+}
+extern "C"
+
+
+// d_day activity
+JNIEXPORT void JNICALL
+Java_com_example_memoapp_11_d_1day_display_17segment(JNIEnv *env, jobject thiz, jint value) {
+    syscall(sys_segment,value);
+}
+extern "C"
+JNIEXPORT void JNICALL
+Java_com_example_memoapp_11_d_1day_led_1on(JNIEnv *env, jobject thiz, jint position) {
+    syscall(sys_led_on,position);
+}extern "C"
+JNIEXPORT void JNICALL
+Java_com_example_memoapp_11_d_1day_led_1off(JNIEnv *env, jobject thiz, jint position) {
+    syscall(sys_led_off,position);
+}extern "C"
+JNIEXPORT void JNICALL
+Java_com_example_memoapp_11_d_1day_kvssd_1op(JNIEnv *env, jobject thiz, jint op_num, jint key,
+                                             jstring value) {
+    const char *str;
+    struct kvssd_env env1;
+    memset(env1.key, 0x00, sizeof(uint32_t) * 4);
+    memset(env1.value, 0x00, sizeof(uint32_t) * 1024);
+
+    env1.key[0] = key+'0';
+    if (op_num == CMD_PUT) {
+        str = (env)->GetStringUTFChars(value, 0);
+
+        for (int i = 0; i <= strlen(str); i++) {
+            env1.value[i] = str[i];
+        }
+    }
+    syscall(sys_kvssd,op_num,&env1);
+}extern "C"
+JNIEXPORT jstring JNICALL
+Java_com_example_memoapp_11_d_1day_get_1key_1kvssd(JNIEnv *env, jobject thiz, jint key) {
+
+    int i;
+    struct kvssd_env env1;
+    unsigned char str[1024];
+    memset(env1.key,0x00,sizeof(uint32_t)*4);
+    memset(env1.value,0x00,sizeof(uint32_t)*1024);
+
+    env1.key[0] = key+'0';
+    syscall(sys_kvssd,CMD_GET,&env1);
+    for(i=0; env1.value[1] !=0; i++){
+        str[i] = env1.value[i];
+    }
+    str[i] = '\0';
+    return env->NewStringUTF(reinterpret_cast<const char *>(str));
 }

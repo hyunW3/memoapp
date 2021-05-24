@@ -27,6 +27,7 @@ class memo_main : AppCompatActivity(), View.OnClickListener {
             //var memo_id:Int = extra.getInt("ID")
             present_id = extra.getInt("ID")
             tag_string = extra.getStringArrayList("tag") as ArrayList<String>
+            //Toast.makeText(applicationContext,"$present_id $tag_string",Toast.LENGTH_SHORT).show()
         }
 
         var memo: Memo? = null
@@ -35,15 +36,14 @@ class memo_main : AppCompatActivity(), View.OnClickListener {
         }).start()
         SystemClock.sleep(10)
         if(memo != null){
-            val tag_all = arrayOf(Tag0_text,Tag1_text,Tag2_text,Tag3_text,Tag4_text,Tag5_text,Tag6_text)
             val tag_button = arrayOf(Tag0_check,Tag1_check,Tag2_check,Tag3_check,Tag4_check,Tag5_check,Tag6_check)
+            val tag_all = arrayOf(Tag0_text,Tag1_text,Tag2_text,Tag3_text,Tag4_text,Tag5_text,Tag6_text)
             var taginfo_:String? = memo?.taginfo
             //Toast.makeText(applicationContext, "Clicked $taginfo_ ", Toast.LENGTH_SHORT).show()
             for(i in 0 until 7){
                 taginfo[i] = taginfo_?.get(i)!!
-
                 tag_all[i].setText(tag_string[i])
-                //led_off(i)
+
                 if(taginfo[i] == '1'){
                     led_on(i)
                     tag_button[i].isChecked = true
@@ -56,6 +56,16 @@ class memo_main : AppCompatActivity(), View.OnClickListener {
                 }
             }
 
+        }else {
+            val tag_all = arrayOf(Tag0_text,Tag1_text,Tag2_text,Tag3_text,Tag4_text,Tag5_text,Tag6_text)
+            val tag_button = arrayOf(Tag0_check,Tag1_check,Tag2_check,Tag3_check,Tag4_check,Tag5_check,Tag6_check)
+            for(i in 0 until 7){
+                tag_all[i].setText(tag_string[i])
+                led_off(i)
+                tag_button[i].setOnClickListener{
+                    checking(it,tag_button[i],i)
+                }
+            }
         }
         //Toast.makeText(applicationContext, "Clicked ${present_id}", Toast.LENGTH_SHORT).show()
 
@@ -64,11 +74,7 @@ class memo_main : AppCompatActivity(), View.OnClickListener {
         memo_main_Content.setText(memo?.contents)
         display_7segment(memo_main_Content.text.toString().length)
         //Toast.makeText(applicationContext, "Clicked ${memo1?.id} ${memo1?.title} ", Toast.LENGTH_SHORT).show()
-      /*
-        kvssd_op(CMD_PUT,0,"AAAA")
-        val name:String = get_key_kvssd(1)
-        Toast.makeText(applicationContext, "Tag $name ", Toast.LENGTH_SHORT).show()
-*/
+
 
         save_button.setOnClickListener{
             onClick(it)
@@ -99,12 +105,10 @@ class memo_main : AppCompatActivity(), View.OnClickListener {
         title = if(title.length ==0) "new_memo" else title
         val content:String = memo_main_Content.text.toString()
         // db에 추가
-        //Toast.makeText(applicationContext,"taginfo ${taginfo.joinToString("")}",Toast.LENGTH_SHORT).show()
         if(v?.id == save_button.id){
-            Thread(Runnable {
+            Thread({
                 MemoDatabase.getInstance(applicationContext)
                         .memoDao().insert(Memo(present_id,title,content,taginfo.joinToString("")))
-                // TODO update case
             }).start()
         }else if(v?.id == del_button.id){
             Thread({
@@ -112,7 +116,7 @@ class memo_main : AppCompatActivity(), View.OnClickListener {
                     .memoDao().delete(Memo(present_id,title,content,taginfo.joinToString("")))
             // TODO update case
             }).start()
-            setResult(Activity.RESULT_FIRST_USER,intent)
+            //setResult(Activity.RESULT_FIRST_USER,intent)
         }
         SystemClock.sleep(50)
         var tag_string = arrayListOf<String>()
@@ -124,12 +128,15 @@ class memo_main : AppCompatActivity(), View.OnClickListener {
             }
             tag_string.add(str)
         }
+        //mToast.makeText(applicationContext,"taginfo ${tag_string}",Toast.LENGTH_SHORT).show()
         intent.putExtra("tag",tag_string)
+        intent.putExtra("test","hi")
+
+        //Toast.makeText(applicationContext,"${intent?.extras?.getString("$tag_string")}",Toast.LENGTH_SHORT).show()
         setResult(Activity.RESULT_OK,intent)
 
-        finish()
+        super.finish()
     }
-
     external fun led_on(position:Int)
     external fun led_off(position:Int)
     external fun display_7segment(value: Int)

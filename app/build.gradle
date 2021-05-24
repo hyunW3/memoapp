@@ -59,8 +59,14 @@ dependencies {
     implementation "androidx.room:room-runtime:$room_version"
     kapt "androidx.room:room-compiler:$room_version"
     implementation 'android.arch.persistence.room:runtime:1.1.1'
+
+
+    implementation 'com.squareup.retrofit2:retrofit:2.7.2'
+    implementation 'com.squareup.retrofit2:converter-gson:2.7.2'
+
     testImplementation 'junit:junit:4.+'
     implementation 'androidx.recyclerview:recyclerview:1.1.0'
+    implementation 'com.github.MatteoBattilana:WeatherView:3.0.0'
 
     androidTestImplementation 'com.android.support.test:runner:1.0.2'
     androidTestImplementation 'com.android.support.test.espresso:espresso-core:3.0.2'

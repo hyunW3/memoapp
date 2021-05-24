@@ -22,24 +22,9 @@ public abstract class MemoDatabase: RoomDatabase(){
                     MemoDatabase::class.java,
                     "memo_database"
                 )   .enableMultiInstanceInvalidation()
-                        //.addCallback(sRoomDatabaseCallback)
                     .build()
             }
             return INSTANCE!! // as MemoDatabase
         }
     }
 }
-/*
-
-                val sRoomDatabaseCallback = object : RoomDatabase.Callback() {
-                    override fun onOpen(db: SupportSQLiteDatabase) {
-                        super.onOpen(db)
-                        Thread {
-                            val dao:MemoDao? = INSTANCE?.memoDao()
-                            dao?.deleteAll()
-                            dao?.insert(Memo(1,"new_memo","hi"))
-                        }.start()
-                    }
-                }
-
- */

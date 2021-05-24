@@ -11,7 +11,6 @@ interface MemoDao{
 
     @Query("SELECT * FROM memoTable ORDER BY id DESC")
     fun getAll(): List<Memo>
-    //fun getAll(): List<Memo>
 
     @Query("SELECT * FROM memoTable WHERE id =:target_id ")
     fun getByid(target_id:Int) : Memo?

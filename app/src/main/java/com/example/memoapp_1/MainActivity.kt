@@ -1,6 +1,7 @@
 package com.example.memoapp_1
 
 
+import android.app.Activity
 import android.content.Intent
 import android.content.SharedPreferences
 import android.os.Bundle
@@ -23,7 +24,6 @@ class MainActivity : AppCompatActivity(), View.OnClickListener{
     private var item_number:Int=0
     private var max_id:Int=0
     //var tvIds: List<Int> = {R.id.memo9 ,R.id.memo4,R.id.memo5,R.id.memo6}
-    private var btn_plus: Button? = null
     private var after_write:Int =0
     private var db:MemoDatabase? = null
     val CMD_PUT:Int = 3
@@ -34,8 +34,9 @@ class MainActivity : AppCompatActivity(), View.OnClickListener{
         setContentView(R.layout.activity_main)
 
         // Example of a call to a native method
-        btn_plus = findViewById<Button>(R.id.btn_plus)
-        btn_plus!!.setOnClickListener(this)
+        btn_plus.setOnClickListener{
+            onClick(it)
+        }
         db = MemoDatabase.getInstance(this)
         prefs = getSharedPreferences("Pref", MODE_PRIVATE);
         layout_for_memos.setHasFixedSize(true)
@@ -104,24 +105,20 @@ class MainActivity : AppCompatActivity(), View.OnClickListener{
 
 
     override fun onClick(v: View?){
-        //onClick_seperater(v?.id,this)
         if(v?.id == btn_plus?.id){
             max_id++
             present_id = max_id
-            //display_7segment(item_number)
+            display_7segment(0)
         }
-
-
-        //present_id = layout_for_memos.getChildAdapterPosition(v!!)
-        //Toast.makeText(applicationContext, "present_id ${present_id}",Toast.LENGTH_SHORT).show()
         val intent = Intent(this, memo_main::class.java)
-        intent.putExtra("ID", present_id)
         var tag_all = arrayOf(Tag0, Tag1, Tag2, Tag3, Tag4, Tag5, Tag6)
         var tag_string = arrayListOf<String>()
         for(i in 0 until 7){
             tag_string.add(tag_all[i].text.toString())
             //tag_string.add("aa")
         }
+        //makeText(applicationContext,"$tag_string",Toast.LENGTH_SHORT).show()
+        intent.putExtra("ID", present_id)
         intent.putExtra("tag", tag_string)
         startActivityForResult(intent, 100)
     }
@@ -129,19 +126,21 @@ class MainActivity : AppCompatActivity(), View.OnClickListener{
         super.onActivityResult(requestCode, resultCode, data)
         after_write = 1
         val extra: Bundle? = intent.extras
-        if(resultCode == RESULT_OK && data != null){
+        //makeText(applicationContext,"${data?.extras?.getString("test")}",Toast.LENGTH_SHORT).show()
+        if(requestCode == 100 && resultCode == Activity.RESULT_OK){//&& data != null){
+
             var tag_string = arrayListOf<String>()
-            if(data.hasExtra("tag")){
-                tag_string = data.getStringArrayListExtra("tag") as ArrayList<String>
+            if(data?.hasExtra("tag") != null){
+                tag_string = data?.getStringArrayListExtra("tag") as ArrayList<String>
                 var tag_all = arrayOf(Tag0, Tag1, Tag2, Tag3, Tag4, Tag5, Tag6)
                 for(i in 0 until 7){
                     var tmp = tag_string[i]
-                    //kvssd_op(CMD_PUT,i,tag_string[i])
                     tag_all[i].text = tmp
                 }
+            }else {
+                Toast.makeText(applicationContext,"no tag",Toast.LENGTH_SHORT).show()
             }
-
-        }
+        } else Toast.makeText(applicationContext,"data == null",Toast.LENGTH_SHORT).show()
         display_7segment(item_number)
         for(i in 0 until 7){
             led_off(i)
@@ -186,7 +185,11 @@ class MainActivity : AppCompatActivity(), View.OnClickListener{
     companion object {
         // Used to load the 'native-lib' library on application startup.
         init {
-            System.loadLibrary("native-lib")
+            try{
+                System.loadLibrary("native-lib")
+            } finally {
+                    // skip
+            }
         }
     }
 
